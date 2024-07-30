@@ -1,7 +1,7 @@
 #Импортируем нужные дополнительные модули
 import os
 import asyncio
-from LOGGING.LoggerConfig import logger
+from Loggs import logger, logging_router
 
 # Импортируем нужные модули из aiogram
 from aiogram import Bot, Dispatcher, F
@@ -11,8 +11,8 @@ from aiogram.types import BotCommandScopeAllPrivateChats, Message
 from aiogram.client.default import DefaultBotProperties
 
 #Достаем токен бота и url базы данных из переменной окружения
-from dotenv import find_dotenv, load_dotenv
-load_dotenv(find_dotenv())
+from dotenv import load_dotenv
+load_dotenv()
 
 # Имопртируем функцию создания базы данных
 try:
@@ -21,25 +21,29 @@ except Exception as e:
     logger.error(f'Ошибка в запросе к sql: {e}')
 
 #Из папки handlers импортируем все хендлеры 
-from Handlers.LearnHandler import lr
-from Handlers.SaveHandler import sr
-from Handlers.deleteHandler import dr
-from Handlers.defintions import defr
+from Handlers import (
+    delete_router,
+    words_router,
+    learn_router,
+    start_router,
+    save_personal_router
+)
+
 # Импортируем команды
-from commands import private
+from Auxiliaries import private
 
 
 #Создаем объект бота (передаем ему режим парсига получаемых ответов)
-bot= Bot(token='6586169062:AAHHKSbnMjOl8sBvFW3aSf_unaUPCXwBogg', default=DefaultBotProperties(parse_mode='HTML'))
+bot= Bot(token="6479697379:AAEH12a_YKMxPV-ADTy3esucoVc9YPVJf5A", default=DefaultBotProperties(parse_mode='HTML'))
 #Создаем объект диспетчера
 dp = Dispatcher()
 
 # Добавляем Middlewares 
     # Чтобы использовать не одно конкретное событие, а любое можно заменить message на update
-from middleware import DataBaseSession
+from Auxiliaries.middleware import DataBaseSession
 
 #Подключаем к диспетчеру все роутеры из содаваемых хендлеров.   
-dp.include_routers(sr, lr, dr, defr) 
+dp.include_routers(delete_router, words_router, learn_router, start_router, save_personal_router, logging_router) 
 
 
 # Добавляем основные "глобальные" хендлеры
@@ -74,10 +78,10 @@ async def main():
 # Запуск main
 if __name__ == "__main__":
     try:   
-        print("I'M ALIVE BIIIYYYAAAATCH")
+        logger.info(f"Бот успешно запущен по ссылке: {os.environ.get("BOT_LINK")}")
         asyncio.run(main())
     except KeyboardInterrupt:   
-        print('Бот остановлен!')
+        logger.error('Бот остановлен')
         pass
     except Exception as e:  
         logger.error(f'КРИТИЧЕСКАЯ ОШИБКА: {e}')

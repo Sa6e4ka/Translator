@@ -12,3 +12,5 @@ class Delete(StatesGroup):
 
 class Definitions(StatesGroup):
     first = State()
+
+
